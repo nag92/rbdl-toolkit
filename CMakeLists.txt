@@ -1,4 +1,4 @@
-	CMAKE_MINIMUM_REQUIRED(VERSION 3.10)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.10)
 
 SET ( TOOLKIT_VERSION_MAJOR 1 )
 SET ( TOOLKIT_VERSION_MINOR 1 )
@@ -50,7 +50,7 @@ ENDIF(CUSTOM_QT_PATH)
 FIND_PACKAGE (RBDL COMPONENTS LUAMODEL URDFREADER REQUIRED)
 FIND_PACKAGE (Eigen3 REQUIRED)
 FIND_PACKAGE (Boost REQUIRED)
-
+FIND_PACKAGE (yaml-cpp REQUIRED)
 IF(USE_QT6)
   FIND_PACKAGE (Qt6 REQUIRED COMPONENTS Core Gui Widgets 3DCore 3DExtras 3DRender 3DInput Concurrent )
   ADD_DEFINITIONS (${QT_DEFINITIONS})
@@ -140,6 +140,11 @@ ELSE (USE_QT6)
 	include/SceneGroupsWidget.h
 	include/variantdelegate.h
 	include/ToolkitSettings.h
+	include/Utilities.h
+    include/BodyParam.h
+    include/JointParam.h
+    include/BuildRBDLModel.h
+    include/RBDLModelErrors.h
 	)
 ENDIF (USE_QT6)
 
@@ -158,6 +163,9 @@ INCLUDE_DIRECTORIES (${CMAKE_CURRENT_BINARY_DIR}/ui)
 INCLUDE_DIRECTORIES (${RBDL_INCLUDE_DIR})
 INCLUDE_DIRECTORIES (${EIGEN3_INCLUDE_DIR})
 INCLUDE_DIRECTORIES (${Boost_INCLUDE_DIR})
+include_directories(include ${YAML_CPP_INCLUDE_DIR} ${Eigen_INCLUDE_DIRS})
+
+
 
 IF ( ${CMAKE_VERSION} VERSION_LESS 3.12.0 )
 	ADD_DEFINITIONS (-DTOOKIT_VERSION="${TOOLKIT_VERSION}" -DINSTALL_DIR="${CMAKE_INSTALL_PREFIX}/share/ORB/rbdl-toolkit")
@@ -190,6 +198,11 @@ SET ( ToolkitLib_SRCS
 	src/toolkit_errors.cc
 	src/luamodel_wrapper.cc
 	src/urdfmodel_wrapper.cc
+	src/Utilities.cpp
+    src/BodyParam.cpp
+    src/JointParam.cpp
+    src/BuildRBDLModel.cpp
+    src/RBDLModelErrors.cpp
 )
 
 SET ( Toolkit_SRCS
@@ -209,6 +222,7 @@ TARGET_LINK_LIBRARIES ( toolkitlib
 	${RBDL_LIBRARY}
 	${RBDL_LUAMODEL_LIBRARY}
 	${RBDL_URDFREADER_LIBRARY}
+	${YAML_CPP_LIBRARIES}
 	urdfparser
 )
 
