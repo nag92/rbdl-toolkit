@@ -33,7 +33,9 @@ void AMBFModelWrapper::load(QString model_file)
 
 	
     try {
+
         BuildRBDLModel model( model_file.toStdString().c_str());
+		*rbdl_model = model.getRBDLModel();
 		mesh_path = model.getMeshPath();
 		QString Qmesh_path =  QString::fromStdString(mesh_path);
 		QString incorrectPath = QDir{model_pwd}.filePath(Qmesh_path);
@@ -44,9 +46,11 @@ void AMBFModelWrapper::load(QString model_file)
 		//load relevant information from modelfile
 		auto model_info = loadModelInfo(model);
 		auto segments_info = loadSegmentInfo(model);
+		std::cout<<"trhe real potato \n";
 		//construct model from that info
 		build3DEntity(model_info, segments_info);
 		//return to original pwdmake
+		QDir::setCurrent(last_pwd);
 		
 
 	} catch (std::exception& e) {
@@ -92,6 +96,7 @@ std::vector<SegmentVisualInfo> AMBFModelWrapper::loadSegmentInfo(BuildRBDLModel 
 
 		//Start building the segment data
 		QString mesh_dir = findFile(mesh_name, true);
+		std::cout<<mesh_dir.toStdString().c_str() << "\n";
 		//NEED TO UPDATE WITH THE MODEL PARAMS FROM FILE
 		Vector3d mesh_translate(0., 0., 0.);
 		float angle = 0.f;
@@ -116,4 +121,5 @@ std::vector<SegmentVisualInfo> AMBFModelWrapper::loadSegmentInfo(BuildRBDLModel 
 			                    };
 		info.push_back(std::move(si));
 	}
+	return info;
 }

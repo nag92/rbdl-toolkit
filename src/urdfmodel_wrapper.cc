@@ -192,7 +192,8 @@ std::vector<SegmentVisualInfo> UrdfModelWrapper::loadSegmentInfo() {
 					}
 				}
 			}
-			SegmentVisualInfo si = {
+			SegmentVisualInfo si = 
+			{
 			segment_name,
 			mesh_file,
 			mesh_translation,
