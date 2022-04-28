@@ -59,11 +59,7 @@ Qt3DCore::QEntity* RBDLModelWrapper::getSegmentEntity(std::string segment_name, 
 		
 		//calculate position and orientation of segment to the model root
 		unsigned int body_id = rbdl_model->GetBodyId(segment_name.c_str());
-		
-		std::cout<<"tic \n";
-		std::cout<<current_Q<<"\n";
 		auto segment_spacial_transform = CalcBodyToBaseCoordinates(*rbdl_model, current_Q, body_id, Vector3d(0., 0., 0.));
-		std::cout<<"toc \n";
 		auto segment_rotation = Quaternion::fromMatrix(CalcBodyWorldOrientation(*rbdl_model, current_Q, body_id));
 
 		Qt3DCore::QTransform* segment_transform = new Qt3DCore::QTransform;
@@ -87,16 +83,13 @@ void RBDLModelWrapper::build3DEntity(ModelInfo& model_info, std::vector<SegmentV
 	if (model_root != NULL) {
 		delete model_root;
 	}
-	std::cout<<rbdl_model->q_size<<"\n";
+
 	model_root = new Qt3DCore::QEntity();
 	auto model_obj = new Qt3DCore::QEntity(model_root);
 	int i = 4;
-	std::cout<<"trhe real potato 3 \n";
 	for (auto vis_info : visuals_info) {
 		
 		auto segment_render_node = getSegmentEntity(vis_info.segment_name, true);
-		std::cout<<"trhe real potato " << i<<" \n";
-
 		segment_render_node->setParent(model_obj);
 		//Visual Entity 
 		Qt3DCore::QEntity* visual_entity = new Qt3DCore::QEntity(segment_render_node);

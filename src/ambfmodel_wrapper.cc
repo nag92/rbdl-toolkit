@@ -33,20 +33,19 @@ void AMBFModelWrapper::load(QString model_file)
 
 	
     try {
-
+		// Build the model
         BuildRBDLModel model( model_file.toStdString().c_str());
 		*rbdl_model = model.getRBDLModel();
+		// Get the path to the meshes
 		mesh_path = model.getMeshPath();
 		QString Qmesh_path =  QString::fromStdString(mesh_path);
 		QString incorrectPath = QDir{model_pwd}.filePath(Qmesh_path);
-		//std::cout << "incorrect path:" << incorrectPath;
 		QString correctPath = QFileInfo{incorrectPath}.absoluteFilePath(); // removes the .
 		std::cout << "correct path: " << correctPath.toStdString().c_str() << "\n";
 		QDir::setCurrent(correctPath);
 		//load relevant information from modelfile
 		auto model_info = loadModelInfo(model);
 		auto segments_info = loadSegmentInfo(model);
-		std::cout<<"trhe real potato \n";
 		//construct model from that info
 		build3DEntity(model_info, segments_info);
 		//return to original pwdmake
@@ -55,14 +54,11 @@ void AMBFModelWrapper::load(QString model_file)
 
 	} catch (std::exception& e) {
 		std::ostringstream error_msg;
-		
 		error_msg <<model_file.toStdString().c_str() << "Error parsing AMBF file!\n" << e.what();
 		throw RigidBodyDynamics::Errors::RBDLFileParseError(error_msg.str());
 	}
 
 }
-
-
 
 ModelInfo AMBFModelWrapper::loadModelInfo(BuildRBDLModel &model) {
 	QMatrix4x4 orientation(
@@ -96,7 +92,6 @@ std::vector<SegmentVisualInfo> AMBFModelWrapper::loadSegmentInfo(BuildRBDLModel 
 
 		//Start building the segment data
 		QString mesh_dir = findFile(mesh_name, true);
-		std::cout<<mesh_dir.toStdString().c_str() << "\n";
 		//NEED TO UPDATE WITH THE MODEL PARAMS FROM FILE
 		Vector3d mesh_translate(0., 0., 0.);
 		float angle = 0.f;
@@ -105,7 +100,6 @@ std::vector<SegmentVisualInfo> AMBFModelWrapper::loadSegmentInfo(BuildRBDLModel 
 		Vector3d visual_scale(1., 1., 1.);
 		Vector3d visual_dimensions(1., 1., 1.);
 		Vector3d visual_center(0., 0., 0.);
-
 		Vector3d visual_color_rgb(1., 1., 1.);
 		float visual_alpha = 1.0;
 		QColor visual_color = QColor::fromRgbF(visual_color_rgb[0], visual_color_rgb[1], visual_color_rgb[2], visual_alpha);
