@@ -51,6 +51,7 @@ FIND_PACKAGE (RBDL COMPONENTS LUAMODEL URDFREADER REQUIRED)
 FIND_PACKAGE (Eigen3 REQUIRED)
 FIND_PACKAGE (Boost REQUIRED)
 FIND_PACKAGE (yaml-cpp REQUIRED)
+FIND_PACKAGE (AMBFController REQUIRED)
 IF(USE_QT6)
   FIND_PACKAGE (Qt6 REQUIRED COMPONENTS Core Gui Widgets 3DCore 3DExtras 3DRender 3DInput Concurrent )
   ADD_DEFINITIONS (${QT_DEFINITIONS})
@@ -140,11 +141,11 @@ ELSE (USE_QT6)
 	include/SceneGroupsWidget.h
 	include/variantdelegate.h
 	include/ToolkitSettings.h
-	include/Utilities.h
-    include/BodyParam.h
-    include/JointParam.h
-    include/BuildRBDLModel.h
-    include/RBDLModelErrors.h
+	# include/Utilities.h
+    # include/BodyParam.h
+    # include/JointParam.h
+    # include/BuildRBDLModel.h
+    # include/RBDLModelErrors.h
 	)
 ENDIF (USE_QT6)
 
@@ -161,6 +162,7 @@ INCLUDE_DIRECTORIES (${CMAKE_CURRENT_BINARY_DIR}/include)
 INCLUDE_DIRECTORIES (${CMAKE_SOURCE_DIR}/vendor/urdfparser/include)
 INCLUDE_DIRECTORIES (${CMAKE_CURRENT_BINARY_DIR}/ui)
 INCLUDE_DIRECTORIES (${RBDL_INCLUDE_DIR})
+INCLUDE_DIRECTORIES(${RBDL_ADF_MODEL_INCLUDE_DIR})
 INCLUDE_DIRECTORIES (${EIGEN3_INCLUDE_DIR})
 INCLUDE_DIRECTORIES (${Boost_INCLUDE_DIR})
 include_directories(include ${YAML_CPP_INCLUDE_DIR} ${Eigen_INCLUDE_DIRS})
@@ -199,11 +201,11 @@ SET ( ToolkitLib_SRCS
 	src/luamodel_wrapper.cc
 	src/urdfmodel_wrapper.cc
 	src/ambfmodel_wrapper.cc
-	src/Utilities.cpp
-    src/BodyParam.cpp
-    src/JointParam.cpp
-    src/BuildRBDLModel.cpp
-    src/RBDLModelErrors.cpp
+	# src/Utilities.cpp
+    # src/BodyParam.cpp
+    # src/JointParam.cpp
+    # src/BuildRBDLModel.cpp
+    # src/RBDLModelErrors.cpp
 )
 
 SET ( Toolkit_SRCS
@@ -221,9 +223,11 @@ TARGET_COMPILE_DEFINITIONS (toolkitlib PRIVATE TOOLKIT_COMPILE_LIB)
 TARGET_LINK_LIBRARIES ( toolkitlib
 	${QT_LIBRARIES}
 	${RBDL_LIBRARY}
+	${RBDL_ADF_LIBRARY}
 	${RBDL_LUAMODEL_LIBRARY}
 	${RBDL_URDFREADER_LIBRARY}
 	${YAML_CPP_LIBRARIES}
+	${RBDL_ADF_LIBRARY}
 	urdfparser
 )
 

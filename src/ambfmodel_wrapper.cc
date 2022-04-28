@@ -1,18 +1,16 @@
 #include <fstream>
 #include <QFileInfo>
 #include <QDir>
-
 #include "ambfmodel_wrapper.h"
-
-
 #include "util.h"
 
-AMBFModelWrapper::AMBFModelWrapper() : RBDLModelWrapper() {
+AMBFModelWrapper::AMBFModelWrapper() : RBDLModelWrapper()  {
 	model_type = MODELTYPE_AMBF;
 };
 
 void AMBFModelWrapper::load(QString model_file) 
 {
+	
     this->model_file = model_file;
 	auto model_file_info = QFileInfo(model_file);
     rbdl_model = new RigidBodyDynamics::Model();
@@ -27,11 +25,17 @@ void AMBFModelWrapper::load(QString model_file)
 	                         std::istreambuf_iterator<char>());
 	model_file_stream.close();
 
-
-
     try {
-		BuildRBDLModel  buildRBDLModel(model_xml_string.c_str());
-        *rbdl_model = buildRBDLModel.getRBDLModel();
+        BuildRBDLModel model(model_xml_string.c_str());
+		//load relevant information from modelfile
+		auto model_info = loadModelInfo(model);
+		auto segments_info = loadSegmentInfo(model);
+
+		//construct model from that info
+		build3DEntity(model_info, segments_info);
+
+		//return to original pwd
+		QDir::setCurrent(last_pwd);
 
 	} catch (std::exception& e) {
 		std::ostringstream error_msg;
@@ -41,111 +45,60 @@ void AMBFModelWrapper::load(QString model_file)
 
 
 
-    	//load relevant information from modelfile
-	auto model_info = loadModelInfo();
-	auto segments_info = loadSegmentInfo();
 
-	//construct model from that info
-	build3DEntity(model_info, segments_info);
-
-	//return to original pwd
-	QDir::setCurrent(last_pwd);
 }
 
 
 
 
-ModelInfo UrdfModelWrapper::loadModelInfo() {
+ModelInfo AMBFModelWrapper::loadModelInfo(BuildRBDLModel &model) {
 	
 	ModelInfo info = {};
+
 	return info;
 }
 
 
 
 
-std::vector<SegmentVisualInfo> UrdfModelWrapper::loadSegmentInfo() {
+std::vector<SegmentVisualInfo> AMBFModelWrapper::loadSegmentInfo(BuildRBDLModel &model) {
 	std::vector<SegmentVisualInfo> info;
+	std::string path = model.getMeshPath();
+	std::unordered_map<std::string, std::string> mesh_map;
+	std::unordered_map<std::string, bodyParamPtr> bodies = model.getRBDLBodyToObjectMap();
+	for ( auto link = bodies.begin(); link != bodies.end(); link++ ) 
+	{
+		//Get the data on the segment
+		std::string segment_name = link->first;
+		bodyParamPtr l = link->second;
+		std::string mesh_name = l->MeshName();
+		Vector3d location = l->Position();
+		Vector3d orentation = l->Orientation();
 
-	auto urdf_model = urdf::UrdfModel::fromUrdfStr(model_xml_string);
+		//Start building the segment data
+		QString mesh_dir = findFile(mesh_name, true);
+		//NEED TO UPDATE WITH THE MODEL PARAMS FROM FILE
+		Vector3d mesh_translate(0., 0., 0.);
+		float angle = 0.f;
+		Vector3d axis = Vector3d(1., 0., 0.);
+		QQuaternion mesh_rotation = QQuaternion::fromAxisAndAngle(QVector3D(axis[0], axis[1], axis[2]), angle);
+		Vector3d visual_scale(1., 1., 1.);
+		Vector3d visual_dimensions(1., 1., 1.);
+		Vector3d visual_center(0., 0., 0.);
 
-	for ( auto link = urdf_model->link_map.begin(); link != urdf_model->link_map.end(); link++ ) {
-		auto l = link->second;
-		while ( rbdl_model->GetBodyId(l->name.c_str()) > rbdl_model->dof_count ) {
-			if (l->getParent() == nullptr ) {
-				break;
-			} else {
-				l = l->getParent();
-			}
-		}
-		bool add_to_root = rbdl_model->GetBodyId(l->name.c_str()) > rbdl_model->dof_count;
-		auto segment_name = l->name;
+		Vector3d visual_color_rgb(1., 1., 1.);
+		float visual_alpha = 1.0;
+		QColor visual_color = QColor::fromRgbF(visual_color_rgb[0], visual_color_rgb[1], visual_color_rgb[2], visual_alpha);
 
-		l = link->second;
-
-		for ( auto visual : l->visuals ) {
-
-			auto pos = visual->origin.position;
-			QVector3D visual_center = QVector3D(0, 0, 0);
-			QVector3D mesh_translation = QVector3D(pos.x, pos.y, pos.z);
-
-			auto rot = visual->origin.rotation;
-			QQuaternion mesh_rotation = QQuaternion(rot.x, rot.y, rot.z, rot.w);
-
-			QColor visual_color = QColor::fromRgbF(1., 1., 1., 1.);
-			if (visual->material.has_value()) {
-				auto color = visual->material.value()->color;
-				visual_color = QColor::fromRgbF(color.r, color.g, color.b, color.a);
-			}
-
-			QString mesh_file;
-			QVector3D visual_dimentions;
-
-			if (visual->geometry.has_value()) {
-				switch ((*visual->geometry.value()).type) {
-					case urdf::GeometryType::SPHERE: {
-						auto geo = (std::shared_ptr<urdf::Sphere>&)visual->geometry.value();
-						mesh_file = findFile(QString("unit_sphere_medres.obj"),true);
-						visual_dimentions = QVector3D(geo->radius, geo->radius, geo->radius);
-						break;
-					}
-					case urdf::GeometryType::BOX: {
-						auto geo = (std::shared_ptr<urdf::Box>&)visual->geometry.value();
-						mesh_file = findFile(QString("unit_cube.obj"), true);
-						visual_dimentions = QVector3D(geo->dim.x, geo->dim.y, geo->dim.z);
-						break;
-					}
-					case urdf::GeometryType::CYLINDER: {
-						auto geo = (std::shared_ptr<urdf::Cylinder>&)visual->geometry.value();
-						mesh_file = findFile(QString("unit_cylinder_medres_z.obj"),true);
-						visual_dimentions = QVector3D(geo->radius, geo->radius, geo->length);
-						mesh_rotation = QQuaternion::fromAxisAndAngle(0., 1., 0., 90.) * mesh_rotation;
-						break;
-					}
-					case urdf::GeometryType::MESH :{
-						auto geo = (std::shared_ptr<urdf::Mesh>&)visual->geometry.value();
-						QString filename = QString::fromStdString(geo->filename);
-						if (filename.startsWith("package://")) {
-							findRelativeToRosPackageRoot(filename, this->model_file);
-						}
-						mesh_file = findFile(filename, true);
-						visual_dimentions = QVector3D(geo->scale.x, geo->scale.y, geo->scale.z);
-						break;
-					}
-				}
-			}
-			SegmentVisualInfo si = {
-			segment_name,
-			mesh_file,
-			mesh_translation,
-			mesh_rotation,
-			visual_color,
-			visual_center,
-			visual_dimentions
-		};
-			info.push_back(std::move(si));
-		}
+		SegmentVisualInfo si = {
+								segment_name,
+								mesh_dir,
+								to_qt_vector(mesh_translate),
+								mesh_rotation,
+								visual_color,
+								to_qt_vector(visual_center),
+								QVector3D(visual_dimensions[0] * visual_scale[0], visual_dimensions[1] * visual_scale[1], visual_dimensions[2] * visual_scale[2])
+			                    };
+		info.push_back(std::move(si));
 	}
-
-	return info;
 }

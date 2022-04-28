@@ -22,4 +22,3 @@ class TOOLKIT_DLLAPI LuaModelWrapper : public RBDLModelWrapper {
 
 #endif
 
-
