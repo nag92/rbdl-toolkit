@@ -8,6 +8,11 @@ AMBFModelWrapper::AMBFModelWrapper() : RBDLModelWrapper()  {
 	model_type = MODELTYPE_AMBF;
 };
 
+QString pathAppend(const QString& path1, const QString& path2)
+{
+    return QDir::cleanPath(path1 + QDir::separator() + path2);
+}
+
 void AMBFModelWrapper::load(QString model_file) 
 {
 	
@@ -24,27 +29,34 @@ void AMBFModelWrapper::load(QString model_file)
 	model_xml_string.assign((std::istreambuf_iterator<char>(model_file_stream)),
 	                         std::istreambuf_iterator<char>());
 	model_file_stream.close();
+	std::string mesh_path; 
 
+	
     try {
-        BuildRBDLModel model(model_xml_string.c_str());
+        BuildRBDLModel model( model_file.toStdString().c_str());
+		mesh_path = model.getMeshPath();
+		QString Qmesh_path =  QString::fromStdString(mesh_path);
+		QString incorrectPath = QDir{model_pwd}.filePath(Qmesh_path);
+		//std::cout << "incorrect path:" << incorrectPath;
+		QString correctPath = QFileInfo{incorrectPath}.absoluteFilePath(); // removes the .
+		std::cout << "correct path: " << correctPath.toStdString().c_str() << "\n";
+		QDir::setCurrent(correctPath);
 		//load relevant information from modelfile
 		auto model_info = loadModelInfo(model);
 		auto segments_info = loadSegmentInfo(model);
-
 		//construct model from that info
 		build3DEntity(model_info, segments_info);
-
-		//return to original pwd
-		QDir::setCurrent(last_pwd);
+		//return to original pwdmake
+		
 
 	} catch (std::exception& e) {
 		std::ostringstream error_msg;
-		error_msg << "Error parsing urdf file!\n" << e.what();
+		
+		error_msg <<model_file.toStdString().c_str() << "Error parsing AMBF file!\n" << e.what();
 		throw RigidBodyDynamics::Errors::RBDLFileParseError(error_msg.str());
 	}
 
 }
-
 
 
 
@@ -68,6 +80,7 @@ std::vector<SegmentVisualInfo> AMBFModelWrapper::loadSegmentInfo(BuildRBDLModel 
 	std::string path = model.getMeshPath();
 	std::unordered_map<std::string, std::string> mesh_map;
 	std::unordered_map<std::string, bodyParamPtr> bodies = model.getRBDLBodyToObjectMap();
+
 	for ( auto link = bodies.begin(); link != bodies.end(); link++ ) 
 	{
 		//Get the data on the segment
