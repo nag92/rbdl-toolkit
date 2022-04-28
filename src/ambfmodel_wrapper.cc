@@ -43,22 +43,24 @@ void AMBFModelWrapper::load(QString model_file)
 		throw RigidBodyDynamics::Errors::RBDLFileParseError(error_msg.str());
 	}
 
-
-
-
 }
 
 
 
 
 ModelInfo AMBFModelWrapper::loadModelInfo(BuildRBDLModel &model) {
-	
-	ModelInfo info = {};
-
+	QMatrix4x4 orientation(
+		0., 1., 0., 0.,
+		0., 0., 1., 0.,
+		1., 0., 0., 0.,
+		0., 0., 0., 1.
+	);
+	ModelInfo info = {
+	                   orientation,
+	                   1.
+	                 };
 	return info;
 }
-
-
 
 
 std::vector<SegmentVisualInfo> AMBFModelWrapper::loadSegmentInfo(BuildRBDLModel &model) {
