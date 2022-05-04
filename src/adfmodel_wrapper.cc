@@ -1,19 +1,15 @@
 #include <fstream>
 #include <QFileInfo>
 #include <QDir>
-#include "ambfmodel_wrapper.h"
+#include "adfmodel_wrapper.h"
 #include "util.h"
 
-AMBFModelWrapper::AMBFModelWrapper() : RBDLModelWrapper()  {
-	model_type = MODELTYPE_AMBF;
+ADFModelWrapper::ADFModelWrapper() : RBDLModelWrapper()  {
+	model_type = MODELTYPE_ADF;
 };
 
-QString pathAppend(const QString& path1, const QString& path2)
-{
-    return QDir::cleanPath(path1 + QDir::separator() + path2);
-}
 
-void AMBFModelWrapper::load(QString model_file) 
+void ADFModelWrapper::load(QString model_file) 
 {
 	
     this->model_file = model_file;
@@ -60,7 +56,7 @@ void AMBFModelWrapper::load(QString model_file)
 
 }
 
-ModelInfo AMBFModelWrapper::loadModelInfo(BuildRBDLModel &model) {
+ModelInfo ADFModelWrapper::loadModelInfo(BuildRBDLModel &model) {
 	QMatrix4x4 orientation(
 		0., 1., 0., 0.,
 		0., 0., 1., 0.,
@@ -75,7 +71,7 @@ ModelInfo AMBFModelWrapper::loadModelInfo(BuildRBDLModel &model) {
 }
 
 
-std::vector<SegmentVisualInfo> AMBFModelWrapper::loadSegmentInfo(BuildRBDLModel &model) {
+std::vector<SegmentVisualInfo> ADFModelWrapper::loadSegmentInfo(BuildRBDLModel &model) {
 	std::vector<SegmentVisualInfo> info;
 	std::string path = model.getMeshPath();
 	std::unordered_map<std::string, std::string> mesh_map;

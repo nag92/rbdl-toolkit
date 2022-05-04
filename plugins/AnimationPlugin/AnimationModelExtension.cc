@@ -8,6 +8,7 @@ AnimationModelExtension::AnimationModelExtension() : dof(0),
                                                      max_time(0.),
                                                      WrapperExtension() 
 {
+
 }
 
 std::string AnimationModelExtension::getExtensionName() {

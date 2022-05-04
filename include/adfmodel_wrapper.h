@@ -7,11 +7,11 @@
 #include "rbdl_wrapper.h"
 #include <unordered_map>
 
-#define MODELTYPE_AMBF "ambf_model"
+#define MODELTYPE_ADF "adf_model"
 
-class TOOLKIT_DLLAPI AMBFModelWrapper : public RBDLModelWrapper {
+class TOOLKIT_DLLAPI ADFModelWrapper : public RBDLModelWrapper {
 	public:
-		AMBFModelWrapper();
+		ADFModelWrapper();
 		std::string model_xml_string;
 		void load(QString model_file);
 		ModelInfo loadModelInfo(BuildRBDLModel&);

@@ -200,7 +200,7 @@ SET ( ToolkitLib_SRCS
 	src/toolkit_errors.cc
 	src/luamodel_wrapper.cc
 	src/urdfmodel_wrapper.cc
-	src/ambfmodel_wrapper.cc
+	src/adfmodel_wrapper.cc
 	# src/Utilities.cpp
     # src/BodyParam.cpp
     # src/JointParam.cpp

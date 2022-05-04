@@ -9,7 +9,7 @@
 #include "rbdl_wrapper.h"
 #include "luamodel_wrapper.h"
 #include "urdfmodel_wrapper.h"
-#include "ambfmodel_wrapper.h"
+#include "adfmodel_wrapper.h"
 #include "rbdl/rbdl_errors.h"
 
 using namespace RigidBodyDynamics;
@@ -36,7 +36,7 @@ RBDLModelWrapper* RBDLModelWrapper::loadFromFile(QString model_file) {
 	} else if (check_file.suffix() == "urdf") {
 		model_wrapper = new UrdfModelWrapper();
 	} else if(check_file.suffix()=="yaml" || check_file.suffix()=="adf"){
-		model_wrapper = new AMBFModelWrapper();
+		model_wrapper = new ADFModelWrapper();
 	}else {
 		throw Errors::RBDLInvalidFileError("The model file you tried to load is not supported!");
 	}
