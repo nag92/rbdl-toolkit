@@ -2,7 +2,9 @@
 
 ROSJointUpdaterExtention::ROSJointUpdaterExtention()
 {
-
+    int argc;
+    char **argv;
+    ros::init(argc, argv, "node_class");
 }
 
 void ROSJointUpdaterExtention::update(float current_time)

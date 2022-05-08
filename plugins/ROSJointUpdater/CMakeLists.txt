@@ -1,16 +1,16 @@
-PROJECT(ROSJointUpdater)
+cmake_minimum_required(VERSION 3.0.2)
+project(ROSJointUpdater)
 
-find_package(catkin REQUIRED COMPONENTS roscpp std_msgs )
+include_directories(/opt/ros/melodic/include /opt/ros/melodic/lib)
+
 find_package (Boost COMPONENTS program_options filesystem REQUIRED)
 
-find_package(catkin REQUIRED COMPONENTS
-roscpp
+find_package(catkin REQUIRED COMPONENTS 
+
 )
 
-
 catkin_package(
-
- CATKIN_DEPENDS roscpp 
+  CATKIN_DEPENDS roscpp std_msgs
 )
 
 SET(ROSJointUpdater_SRCS

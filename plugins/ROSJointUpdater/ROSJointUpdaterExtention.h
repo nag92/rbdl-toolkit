@@ -14,9 +14,11 @@
 class TOOLKIT_PLUGIN_DLLAPI ROSJointUpdaterExtention: public WrapperExtension {
     private:
         // ... all private variables holding extension data
+        ros::NodeHandle nh_;
+       void joint_cb(const std_msgs::Float32MultiArray::ConstPtr& msg);
     public:
        ROSJointUpdaterExtention();
-       void joint_cb(const std_msgs::Float32MultiArray::ConstPtr& msg);
+       
 	   std::string getExtensionName();
 	   void update(float current_time);
 };
