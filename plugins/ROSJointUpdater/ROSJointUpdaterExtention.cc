@@ -5,6 +5,7 @@ ROSJointUpdaterExtention::ROSJointUpdaterExtention()
     int argc;
     char **argv;
     ros::init(argc, argv, "node_class");
+    ros::Subscriber sub = nh_.subscribe("/number", 1000, &ROSJointUpdaterExtention::joint_cb, this);
 }
 
 void ROSJointUpdaterExtention::update(float current_time)

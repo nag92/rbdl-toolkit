@@ -14,7 +14,7 @@
 class TOOLKIT_PLUGIN_DLLAPI ROSJointUpdaterExtention: public WrapperExtension {
     private:
         // ... all private variables holding extension data
-        ros::NodeHandle nh_;
+       ros::NodeHandle nh_;
        void joint_cb(const std_msgs::Float32MultiArray::ConstPtr& msg);
     public:
        ROSJointUpdaterExtention();

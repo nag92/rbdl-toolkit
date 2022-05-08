@@ -14,11 +14,13 @@ catkin_package(
 )
 
 SET(ROSJointUpdater_SRCS
-    ROSJointUpdaterExtention.cc
+    #ROSJointUpdaterExtention.cc
+    TestPlugin.cc
 )
 
 SET(ROSJointUpdater_MOC_HDRS
-    ROSJointUpdaterExtention.h
+  #  ROSJointUpdaterExtention.h
+    TestPlugin.h
 	include/toolkit_interfaces.h
 )
 
@@ -42,19 +44,19 @@ ADD_DEFINITIONS (-DQT_SHARED)
 
 SET(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-ADD_LIBRARY (ROSplugin SHARED ${ROSJointUpdater_SRCS})
+ADD_LIBRARY (TestPlugin SHARED ${ROSJointUpdater_SRCS})
 
-TARGET_LINK_LIBRARIES (ROSplugin
+TARGET_LINK_LIBRARIES (TestPlugin
 	${RBDL_LIBRARY}
 	toolkitlib
     ${catkin_LIBRARIES}
 	
 )
 
-TARGET_COMPILE_DEFINITIONS (ROSplugin PRIVATE TOOLKIT_COMPILE_ROSJointUpdaterPLUGIN)
+TARGET_COMPILE_DEFINITIONS (TestPlugin PRIVATE TOOLKIT_COMPILE_PLUGIN)
 
 IF(NOT MSVC)
-INSTALL( TARGETS ROSplugin
+INSTALL( TARGETS TestPlugin
          RUNTIME DESTINATION ${PLUGIN_INSTALL_DIR}
          LIBRARY DESTINATION ${PLUGIN_INSTALL_DIR})
 ENDIF()
